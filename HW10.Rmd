@@ -1,0 +1,56 @@
+---
+title: "Assignment 10 - 23Nov18"
+author: "Charlene Thomas"
+date: "11/22/2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Assignment 10 - Lab
+
+1. Write a function that calculates cumulative distribution function of a binomial random variable.
+
+Compare results from your function with pbinom() function.
+
+```{r}
+p_binom <- function(x,size, probz) {
+    total = sum(dbinom(0:x,size, probz))
+  return(total)
+}
+
+
+p_binom(60, 100, 0.5)
+pbinom(60,100,0.5)
+
+library(microbenchmark)
+microbenchmark(p_binom(60, 100, 0.5),pbinom(60,100,0.5))
+
+```
+
+2. Write a function that runs simulations to obtain power from a one-sample t-test. Run your function (with number of simulations = 10,000 ) with n = 30, delta = 0.5, sd = 1 and sig.level = 0.05. Compare your results with power.t.test(n = 30, delta = 0.5, sd = 1, sig.level = 0.05, type = ‘one.sample’).
+
+
+```{r}
+#Create Function
+power_sim <- function(reps, n, mu0, delta, sigma, alpha) {
+power <- replicate(reps,
+                   {
+x <- rnorm(n, mean = delta, sd = sigma)
+tt <- as.numeric(t.test(x)$p.value < alpha)
+
+}
+)
+return(sum(power)/length(power))
+}
+
+power_sim(10000, 30, 0, 0.5, 1, 0.05)
+
+#Power.T.Test
+power.t.test(n = 30, delta = 0.5, sd = 1, sig.level = 0.05, type = "one.sample")
+
+microbenchmark(power_sim(10000, 30, 0, 0.5, 1, 0.05),power.t.test(n = 30, delta = 0.5, sd = 1, sig.level = 0.05, type = "one.sample"))
+
+```
